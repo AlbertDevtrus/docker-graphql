@@ -23,7 +23,6 @@ jobs:
       with:
         major_pattern: "major:"
         minor_pattern: "feat:"
-        format: "${major}.${minor}.${patch}-prerelease${increment}"
       id: version
 
               
@@ -32,20 +31,23 @@ jobs:
       env: 
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
-        NEW_VERSION: ${{ steps.version.outputs.version }}
+        
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASS
-        echo New version: $NEW_VERSION
 
-    # - name: Build docker image
-    #   run: |
-    #     docker build -t timmyeltaco/docker-graphql:0.0.2 .
-    #     docker build -t timmyeltaco/docker-graphql:latest .
+    - name: Build docker image
+      env:
+        NEW_VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        docker build -t timmyeltaco/docker-graphql:$NEW_VERSION .
+        docker build -t timmyeltaco/docker-graphql:latest .
     
-    # - name: Push docker image
-    #   run: |
-    #     docker push timmyeltaco/docker-graphql:0.0.2
-    #     docker push timmyeltaco/docker-graphql:latest
+    - name: Push docker image
+      env:
+        NEW_VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        docker push timmyeltaco/docker-graphql:$NEW_VERSION
+        docker push timmyeltaco/docker-graphql:latest
 
         
     # - name: Build the Docker image
